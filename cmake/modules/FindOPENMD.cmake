@@ -5,15 +5,17 @@
 #  OPENMD_LIBRARIES - The libraries needed to use OPENMD
 
 
-find_path(OPENMD_INCLUDE_DIR DumpReader.hpp
-          HINTS /usr/include/openmd
+find_path(OPENMD_INCLUDE_DIR io/DumpReader.hpp
+          HINTS $ENV{OPENMD_INCLUDE_DIR} /usr/include/openmd
           PATH_SUFFIXES OPENMD )
 
 find_library(OPENMD_LIBRARY NAMES openmd_core OPENMD
-             HINTS /usr/lib64 )
+             HINTS $ENV{OPENMD_LIB_DIR} /usr/lib64 )
 
 set(OPENMD_LIBRARIES ${OPENMD_LIBRARY} )
 set(OPENMD_INCLUDE_DIRS ${OPENMD_INCLUDE_DIR} )
+
+message(${OPENMD_INCLUDE_DIRS})
 
 include(FindPackageHandleStandardArgs)
 # handle the QUIETLY and REQUIRED arguments and set OPENMD_FOUND to TRUE

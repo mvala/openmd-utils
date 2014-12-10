@@ -8,7 +8,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 find_package(OPENMD REQUIRED)
 #find_package(ROOT REQUIRED)
 
-add_subdirectory(src)
+#add_subdirectory(src)
 
 include(CPack)
 
