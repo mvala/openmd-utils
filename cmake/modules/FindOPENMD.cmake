@@ -15,8 +15,6 @@ find_library(OPENMD_LIBRARY NAMES openmd_core OPENMD
 set(OPENMD_LIBRARIES ${OPENMD_LIBRARY} )
 set(OPENMD_INCLUDE_DIRS ${OPENMD_INCLUDE_DIR} )
 
-message(${OPENMD_INCLUDE_DIRS})
-
 include(FindPackageHandleStandardArgs)
 # handle the QUIETLY and REQUIRED arguments and set OPENMD_FOUND to TRUE
 # if all listed variables are TRUE
