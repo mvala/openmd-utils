@@ -8,9 +8,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-unused-variab
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules")
 find_package(Qhull REQUIRED)
 find_package(OPENMD REQUIRED)
-#find_package(ROOT REQUIRED)
+find_package(ROOT REQUIRED)
+include(root-utils)
+
+add_custom_target(par-all)
 
 include(CPack)
+
+add_subdirectory(src/root/OmdBase)
 
 # uninstall
 CONFIGURE_FILE(
