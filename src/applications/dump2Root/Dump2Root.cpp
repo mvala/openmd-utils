@@ -50,8 +50,11 @@
 #include "brains/SimInfo.hpp"
 #include "io/DumpReader.hpp"
 #include "visitors/CompositeVisitor.hpp"
-//#include "visitors/OtherVisitor.hpp"
 #include "visitors/RootVisitor.hpp"
+
+#include <TFile.h>
+#include <TTree.h>
+#include "root/OmdBase/TOmdFrame.h"
 
 using namespace OpenMD;
 
@@ -79,7 +82,7 @@ int main(int argc, char* argv[]){
     rootFileName = args_info.output_arg;
   } else {
     rootFileName = dumpFileName;
-    rootFileName = rootFileName.substr(0, rootFileName.rfind(".")) + ".dat";
+    rootFileName = rootFileName.substr(0, rootFileName.rfind(".")) + ".root";
   }
 
   //  parse md file and set up the system
@@ -89,15 +92,20 @@ int main(int argc, char* argv[]){
   //create visitor list
   CompositeVisitor* compositeVisitor = new CompositeVisitor();
 
+  TOmdFrame *omdFrame = new TOmdFrame();
+  omdFrame->Init();
   //create rootVisitor
-  RootVisitor* rootVisitor = new RootVisitor(info);
+  RootVisitor* rootVisitor = new RootVisitor(info, omdFrame);
   compositeVisitor->addVisitor(rootVisitor, 200);
 
   //open dump file
   DumpReader* dumpReader = new DumpReader(info, dumpFileName);
   int nframes = dumpReader->getNFrames();
 
-  ofstream rootStream(rootFileName.c_str());
+  // Create output file and tree
+  TFile *omdFile = TFile::Open(rootFileName.c_str(),"RECREATE");
+  TTree *omdTree = new TTree("omdTree","OpenMD tree");
+  omdTree->Branch("omdFrame","TOmdFrame",&omdFrame);
 
   SimInfo::MoleculeIterator miter;
   Molecule::IntegrableObjectIterator  iiter;
@@ -107,6 +115,8 @@ int main(int argc, char* argv[]){
   for (int i = 0; i < nframes; i += args_info.frame_arg){
     dumpReader->readFrame(i);
     cout << "Frame : " << i << endl;
+
+    omdFrame->SetId(i);
 
     //update visitor
     compositeVisitor->update();
@@ -118,17 +128,22 @@ int main(int argc, char* argv[]){
       for (sd = mol->beginIntegrableObject(iiter); sd != NULL;
            sd = mol->nextIntegrableObject(iiter)) {
 
-      	sd->accept(compositeVisitor);
+        sd->accept(compositeVisitor);
       }
     }
 
-    rootVisitor->writeFrame(rootStream, i);
+    rootVisitor->writeFrame(omdTree);
+    omdFrame->Clear();
+
     rootVisitor->clear();
 
   }//end for (int i = 0; i < nframes; i += args_info.frame_arg)
 
-  rootStream.close();
   delete compositeVisitor;
   delete info;
+
+  omdTree->Write();
+  omdFile->Close();
+//  delete omdTree;
 	return 0;
 }

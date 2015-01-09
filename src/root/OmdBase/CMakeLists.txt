@@ -2,7 +2,9 @@
 set(PACKAGE OmdBase)
 
 set(SRCS
+    TOmdFrameObj.cxx
     TOmdFrame.cxx
+    TOmdInputSelector.cxx
 )
 
 set(INCLUDE_DIRECTORIES
@@ -16,6 +18,9 @@ set(LINK_DIRECTORIES
   ${ROOT_LIBRARY_DIR}
 )
 link_directories( ${LINK_DIRECTORIES})
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+
 
 String(REPLACE ".cxx" ".h" HDRS "${SRCS}")
 ROOT_GENERATE_DICTIONARY( G__${PACKAGE} ${HDRS} LINKDEF ${PACKAGE}LinkDef.h)

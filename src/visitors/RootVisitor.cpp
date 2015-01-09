@@ -47,15 +47,12 @@
 #include "brains/SimInfo.hpp"
 #include "brains/Thermo.hpp"
 
+
 namespace OpenMD {
 
   //------------------------------------------------------------------------//
-  RootVisitor::RootVisitor(SimInfo *info) : BaseVisitor(), seleMan(info),
-                                          evaluator(info), doPositions_(true),
-                                          doVelocities_(false), 
-                                          doForces_(false), doVectors_(false),
-                                          doCharges_(false), 
-                                          doElectricFields_(false) {
+  RootVisitor::RootVisitor(SimInfo *info, TOmdFrame *frame) : BaseVisitor(), seleMan(info),
+                                          evaluator(info), omdFrame(frame){
     this->info = info;
     visitorName = "RootVisitor";
     
@@ -66,10 +63,8 @@ namespace OpenMD {
     }
   }
   
-  RootVisitor::RootVisitor(SimInfo *info, const std::string& script) :
-    BaseVisitor(), seleMan(info), evaluator(info), doPositions_(true),
-    doVelocities_(false), doForces_(false), doVectors_(false),
-    doCharges_(false), doElectricFields_(false) {
+  RootVisitor::RootVisitor(SimInfo *info, TOmdFrame *frame, const std::string& script) :
+    BaseVisitor(), seleMan(info), evaluator(info), omdFrame(frame) {
     
     this->info = info;
     visitorName = "RootVisitor";
@@ -82,6 +77,8 @@ namespace OpenMD {
   }
     
   void RootVisitor::visit(Atom *atom) {
+    //    if (isSelected(atom))
+    //      internalVisit(atom);
     // we ignore atoms
     return;
   }
@@ -107,29 +104,17 @@ namespace OpenMD {
     char                              buffer[1024];
 
     Vector3<RealType> p = sd->getPos();
+    Vector3<RealType> v = sd->getVel();
     Quaternion<RealType> q = sd->getQ();
-    
-    std::string line;
-    sprintf(buffer, "%d %e %e %e %e %e %e %e", sd->getGlobalIndex(), p.x(), p.y(), p.z(),
-        q.w(), q.x(), q.y(), q.z());
-    line += buffer;
-
-    frame.push_back(line);
+    omdFrame->AddObject(sd->getGlobalIndex(), p.x(), p.y(), p.z(), v.x(), v.y(), v.z(), q.w(), q.x(), q.y(), q.z());
   }
 
   bool RootVisitor::isSelected(StuntDouble *sd) {
     return seleMan.isSelected(sd);
   }
 
-  void RootVisitor::writeFrame(std::ostream &outStream, int id) {
-    std::vector<std::string>::iterator i;
-    char buffer[1024];
-    
-    if (frame.empty())
-      std::cerr << "Current Frame does not contain any atoms" << std::endl;
-    
-    for( i = frame.begin(); i != frame.end(); ++i )
-      outStream << id << " " << *i << std::endl;
+  void RootVisitor::writeFrame(TTree *tree) {
+    tree->Fill();
   }
   
   std::string RootVisitor::trimmedName(const std::string&atomTypeName) {

@@ -52,6 +52,9 @@
 #include "selection/SelectionManager.hpp"
 #include "selection/SelectionEvaluator.hpp"
 
+#include <TTree.h>
+#include "root/OmdBase/TOmdFrame.h"
+
 namespace OpenMD {
 
   class SimInfo;
@@ -60,9 +63,9 @@ namespace OpenMD {
   public:
     using BaseVisitor::visit; 
     
-    RootVisitor(SimInfo* info);
+    RootVisitor(SimInfo* info, TOmdFrame *frame);
     
-    RootVisitor(SimInfo* info, const std::string& script);
+    RootVisitor(SimInfo* info, TOmdFrame *frame, const std::string& script);
     
     virtual void visit(Atom* atom);
     virtual void visit(DirectionalAtom* datom);
@@ -72,14 +75,8 @@ namespace OpenMD {
 
     virtual const std::string toString();
     
-    void writeFrame(std::ostream& outStream, int id);
+    void writeFrame(TTree *tree);
     void clear() {frame.clear();}
-    void doPositions(bool pos) {doPositions_ = pos;}
-    void doVelocities(bool vel) {doVelocities_ = vel;}
-    void doForces(bool frc) {doForces_ = frc;}
-    void doVectors(bool vec) {doVectors_ = vec;}
-    void doCharges(bool chg) {doCharges_ = chg;}
-    void doElectricFields(bool efl) {doElectricFields_ = efl;}
 
   protected:
     void internalVisit(StuntDouble* sd);
@@ -91,13 +88,8 @@ namespace OpenMD {
     SimInfo* info;
     SelectionManager seleMan;
     SelectionEvaluator evaluator; 
+    TOmdFrame *omdFrame;
     std::vector<std::string> frame;
-    bool doPositions_;
-    bool doVelocities_;
-    bool doForces_;
-    bool doVectors_;
-    bool doCharges_;
-    bool doElectricFields_;
   };
 
 }//namespace OpenMD
