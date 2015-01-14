@@ -4,9 +4,20 @@
 #include <TTree.h>
 #include <TSelector.h>
 #include <TH1D.h>
+#include <TCanvas.h>
+
+#include <TGeoManager.h>
+#include <TGeoVolume.h>
+#include <TGeoMaterial.h>
+
+
 
 class TTree;
 class TOmdFrame;
+
+//class TGeoManager;
+//class TGeoVolume;
+//class TGeoMedium;
 
 class TOmdInputSelector: public TSelector {
 
@@ -25,11 +36,29 @@ public:
   virtual void SlaveTerminate();
   virtual void Terminate();
 
+  void CreateGeometry();
+  void ProcessGeometry();
+
+  void SetDrawOption(TString opt);
+  void SetOutputDir(TString outputDir);
+
 private:
 
   TTree *fChain;                  //!pointer to the analyzed TTree or TChain
   TOmdFrame *fFrame;
+
+  TGeoManager *fGeoManager;
+  TGeoVolume *fArrow;
+  TGeoMedium *fVacuum;
+
+  TList *fListOfCombiTrans;
+
+  TCanvas *fCanvas;
+  TString fDrawOpt;
+
   TH1D *fHist;
+
+  TString fOutputDir;
 
 ClassDef(TOmdInputSelector, 1)
 

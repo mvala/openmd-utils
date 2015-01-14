@@ -1,19 +1,16 @@
 #ifndef __CINT__
 #include <TSystem.h>
 #include <TGeoManager.h>
-#include <TStyle.h>
 #endif
 
 void TestArrow(TString filename = "arrow.root") {
 
-//  gStyle->SetCanvasPreferGL(kTRUE);
-
   gSystem->Load("libGeom");
   TGeoManager *geom = new TGeoManager("simple1", "Simple geometry");
 
-  //--- define some materials
+  // Define some materials
   TGeoMaterial *matVacuum = new TGeoMaterial("Vacuum", 0,0,0);
-  //--- define some media
+  // Define some media
   TGeoMedium *Vacuum = new TGeoMedium("Vacuum",1, matVacuum);
 
   //--- make the top container volume
@@ -46,19 +43,23 @@ void TestArrow(TString filename = "arrow.root") {
   TGeoCombiTrans *transRotArrow = new TGeoCombiTrans(50, 30, 20., rotArrow);
   top->AddNode(arrow, 1, transRotArrow);
 
-  //--- close the geometry
+  // Close the geometry
   geom->CloseGeometry();
 
+  // Exporting geometry
   geom->Export(filename.Data());
 
-//  TGeoManager::Import(filename.Data());
-
-  //
+  // top is invisible by default
   geom->SetTopVisible();
 
   geom->SetVisLevel(4);
 //  arrow->Draw("ogl");
-  top->Draw("ogl");
+
+
+  TCanvas *c = new TCanvas();
+//  top->Draw("ogl");
+  top->Draw();
+  c->SaveAs("frame.png");
 
 }
 

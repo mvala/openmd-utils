@@ -42,8 +42,8 @@ void ShowFrame(Double_t arrowScale  = 1., Double_t worldScale  = 10., TString ou
   // top is invisible by default
   if (isTopVisible) geom->SetTopVisible();
 
-  top->Draw();
-//  top->Draw("ogl");
+//  top->Draw();
+  top->Draw("ogl");
 }
 
 void LoopFrames(TGeoVolume *top, TGeoVolume *arrow) {

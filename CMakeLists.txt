@@ -42,4 +42,4 @@ set (DUMP2ROOTSOURCE
 )
 
 add_executable(Dump2Root ${DUMP2ROOTSOURCE})
-target_link_libraries(Dump2Root openmd_single openmd_core openmd_single ${QHULL_LIBRARIES} ${ROOT_LIBRARIES} OmdBase)
+target_link_libraries(Dump2Root openmd_single openmd_core openmd_single ${QHULL_LIBRARIES} ${ROOT_LIBRARIES} Geom OmdBase)
