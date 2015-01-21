@@ -34,6 +34,9 @@ TOmdFrameObj::~TOmdFrameObj() {
 
 //_________________________________________________________________________________________________
 Int_t TOmdFrameObj::SelfTest() {
+  //
+  // Self test
+  //
 
   Printf("Testing 'TOmdFrameObj' ");
 
@@ -43,16 +46,27 @@ Int_t TOmdFrameObj::SelfTest() {
 
 //_________________________________________________________________________________________________
 Int_t TOmdFrameObj::GetId() const {
+  //
+  // Returns ID
+  //
   return fId;
 }
 
 //_________________________________________________________________________________________________
 void TOmdFrameObj::SetId(Int_t id) {
+  //
+  // Sets ID
+  //
+
   fId = id;
 }
 
 //_________________________________________________________________________________________________
 void TOmdFrameObj::SetPosition(Double32_t x, Double32_t y, Double32_t z) {
+  //
+  // Sets position
+  //
+
   fPosition[0] = x;
   fPosition[1] = y;
   fPosition[2] = z;
@@ -60,12 +74,20 @@ void TOmdFrameObj::SetPosition(Double32_t x, Double32_t y, Double32_t z) {
 
 //_________________________________________________________________________________________________
 Double32_t TOmdFrameObj::GetPosition(Int_t i) const {
+  //
+  // Returns position
+  //
+
   return (i < 3) ? fPosition[i] : 0;
 }
 
 //_________________________________________________________________________________________________
 void TOmdFrameObj::SetQuaternion(Double32_t w, Double32_t x, Double32_t y,
     Double32_t z) {
+  //
+  // Sets Quaternion
+  //
+
   fQuaternion[0] = w;
   fQuaternion[1] = x;
   fQuaternion[2] = y;
@@ -74,11 +96,19 @@ void TOmdFrameObj::SetQuaternion(Double32_t w, Double32_t x, Double32_t y,
 
 //_________________________________________________________________________________________________
 Double32_t TOmdFrameObj::GetQuaternion(Int_t i) const {
+  //
+  // Returns Quaternion
+  //
+
   return (i < 4) ? fQuaternion[i] : 0;
 }
 
 //_________________________________________________________________________________________________
 void TOmdFrameObj::SetVelocity(Double32_t x, Double32_t y, Double32_t z) {
+  //
+  // Sets Velocity
+  //
+
   fVelocity[0] = x;
   fVelocity[1] = y;
   fVelocity[2] = z;
@@ -86,11 +116,18 @@ void TOmdFrameObj::SetVelocity(Double32_t x, Double32_t y, Double32_t z) {
 
 //_________________________________________________________________________________________________
 Double32_t TOmdFrameObj::GetVelocity(Int_t i) const {
+  //
+  // Returns Velocity
+  //
+
   return (i < 3) ? fVelocity[i] : 0;
 }
 
 //_________________________________________________________________________________________________
 TGeoRotation *TOmdFrameObj::GetRotationMatrix() {
+  //
+  // Returns Rotation Matrix
+  //
 
   if (!fRotMatrix)
     fRotMatrix = new TGeoRotation();
@@ -102,6 +139,9 @@ TGeoRotation *TOmdFrameObj::GetRotationMatrix() {
 
 //_________________________________________________________________________________________________
 void TOmdFrameObj::ApplyRotationMatrix(TGeoRotation *r) {
+  //
+  // Returns Rotation Matrix from Quaternion
+  //
 
   if (!r) return;
 

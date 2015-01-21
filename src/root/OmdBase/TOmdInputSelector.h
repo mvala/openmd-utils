@@ -10,14 +10,8 @@
 #include <TGeoVolume.h>
 #include <TGeoMaterial.h>
 
-
-
 class TTree;
 class TOmdFrame;
-
-//class TGeoManager;
-//class TGeoVolume;
-//class TGeoMedium;
 
 class TOmdInputSelector: public TSelector {
 
@@ -42,23 +36,25 @@ public:
   void SetDrawOption(TString opt);
   void SetOutputDir(TString outputDir);
 
+  void SetInitialPositionOnly(Bool_t initPosOnly);
+
 private:
 
-  TTree *fChain;                  //!pointer to the analyzed TTree or TChain
-  TOmdFrame *fFrame;
+  TTree           *fChain;                  //!Pointer to the analyzed TTree or TChain
+  TOmdFrame       *fFrame;                  //!Current frame
 
-  TGeoManager *fGeoManager;
-  TGeoVolume *fArrow;
-  TGeoMedium *fVacuum;
+  TGeoManager     *fGeoManager;             // Geo Manager
+  TGeoVolume      *fArrow;                  // Arrow object
+  TGeoMedium      *fVacuum;                 // Material for arrow
 
-  TList *fListOfCombiTrans;
+  TList           *fListOfCombiTrans;       // List of rotations
 
-  TCanvas *fCanvas;
-  TString fDrawOpt;
+  TCanvas         *fCanvas;                 //!Canvas to draw
+  TString          fDrawOpt;                // Draw options
 
-  TH1D *fHist;
-
-  TString fOutputDir;
+  TString          fOutputDir;              // Output directory
+  Bool_t           fSaveGeometry;           // Flag if geometry should be saved
+  Bool_t           fInitialPositionOnly;    // Flag if only initial position should be set
 
 ClassDef(TOmdInputSelector, 1)
 
