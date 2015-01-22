@@ -16,7 +16,7 @@ TOmdInputSelector::TOmdInputSelector(TTree * /*tree*/) :
     TSelector(), fChain(0), fFrame(0), fGeoManager(0), fArrow(0), fVacuum(0), fListOfCombiTrans(0), fCanvas(0), fDrawOpt(
         ""), fOutputDir("/tmp"), fSaveGeometry(kFALSE), fInitialPositionOnly(kTRUE) {
   //
-  // Std constructor
+  // Standard constructor
   //
 
 }

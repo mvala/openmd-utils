@@ -17,7 +17,7 @@ ClassImp(TOmdFrameObj)
 TOmdFrameObj::TOmdFrameObj() :
     TObject(), fId(0), fRotMatrix(0) {
   //
-  // Std constructor
+  // Standard constructor
   //
 
 }

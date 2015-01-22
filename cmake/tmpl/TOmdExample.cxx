@@ -17,7 +17,7 @@ ClassImp(TOmdExample)
 TOmdExample::TOmdExample() :
 		TObject() {
 //
-// Std constructor
+// Standard constructor
 //
 
 }
