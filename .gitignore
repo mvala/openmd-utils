@@ -31,3 +31,5 @@
 build
 pars
 tmp
+
+__pycache__

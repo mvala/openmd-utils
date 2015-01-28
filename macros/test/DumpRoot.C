@@ -9,7 +9,7 @@ void DumpRoot(const char *input="test.txt", const char *dsName="omd") {
   fc->AddFromFile(input);
 
   TProof *p = TProof::Open("");
-  p->SetParallel(4);
+  p->SetParallel(1);
 
   p->RegisterDataSet(dsName, fc, "O");
   p->VerifyDataSet(dsName);
