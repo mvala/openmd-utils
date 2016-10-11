@@ -2,6 +2,7 @@
 #include <TProof.h>
 #include <TChain.h>
 #include <TFileCollection.h>
+#include <TOmdInputSelector.h>
 #endif
 void DumpRoot(const char *input="test.txt", const char *dsName="omd") {
 
@@ -22,7 +23,7 @@ void DumpRoot(const char *input="test.txt", const char *dsName="omd") {
 //  sel->SetDrawOption("ogl");
 
   Long64_t numEvents = 1e10;
-//  numEvents = 10;
+  numEvents = 100;
   p->Process(dsName,sel,"",numEvents);
 
 //  TChain *ch = new TChain("omdTree","Omd Tree");

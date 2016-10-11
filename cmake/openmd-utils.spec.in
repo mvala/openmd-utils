@@ -1,0 +1,37 @@
+Name:		openmd-utils
+Version:	@CPACK_PACKAGE_VERSION_MAJOR@.@CPACK_PACKAGE_VERSION_MINOR@.@CPACK_PACKAGE_VERSION_PATCH@
+Release:	0%{?dist}
+Summary:	OpenMD utils
+Group:		System Environment/Libraries
+License:	LGPL v3+
+Source0:    %{name}-%{version}.tar.gz
+
+BuildRequires:  cmake, openmd-devel, qhull-devel
+BuildRequires:  root, root-geom
+Requires:       root
+
+%description
+OpenMD utils
+
+%prep
+%setup -q
+
+%build
+mkdir build
+cd build
+cmake ../ -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release
+make %{?_smp_mflags}
+cd ../
+
+%install
+rm -rf %{buildroot}
+cd build
+make install DESTDIR=%{buildroot}
+cd ../
+
+%files
+%{_bindir}/*
+%{_libdir}/*
+%{_datadir}/openmd-utils/*
+
+%changelog

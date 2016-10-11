@@ -1,56 +1,66 @@
 #!/bin/bash
 
+trap finish SIGINT SIGTERM
+
 function usage() {
 cat << EOF
 usage ./$(basename $0) [options] <file.md>
 
 options:
-	-o <direcotry>	Define output direcotry
-	-r				Do render in blender
-	-c <comment>	Write comment (comment will be appended to README file)
 	
 EOF
 }
 
-function clean() {
-	echo "Deleting ${1//.md/.dump} ..."
-	rm -f ${1//.md/.dump}	
-	echo "Deleting ${1//.md/.xyz} ..."
-	rm -f ${1//.md/.xyz}	
+function finish() {
+	MYSIG=$?
+	mkdir -p $OPENMD_OUTPUT_DIR
+	cp * $OPENMD_OUTPUT_DIR/
+	echo 
+	echo "Cleaning directory '$OPENMD_SANDBOX_DIR' ..."
+	rm -rf $OPENMD_SANDBOX_DIR
+	echo 
+	echo "OPENMD_SANDBOX_DIR = $OPENMD_SANDBOX_DIR"
+	echo "OPENMD_OUTPUT_DIR = $OPENMD_OUTPUT_DIR"
+	echo
+	echo "JOB exit with $MYSIG"
+	if [ $MYSIG = 0 ];then
+		echo "OK ($MYSIG)" > $OPENMD_OUTPUT_DIR/SUMMARY
+	else
+		echo "FAILED ($MYSIG)" > $OPENMD_OUTPUT_DIR/SUMMARY	
+	fi
+	exit $MYSIG
 }
 
-MYPWD=$(pwd)
+function getID() {
 
-OUTPUTDIR="."
-BLENDER_PYTHON_OPT=""
-PROCESS_INFO="No Info"
-while getopts ":rc:o:" optname
-  do
-    case "$optname" in
-      "r")
-        echo "Will do rendering ... (TODO)"
-        BLENDER_PYTHON_OPT="--render $BLENDER_PYTHON_OPT"
-        ;;
-      "o")
-        OUTPUTDIR=$OPTARG/
-        ;;
-      "c")
-        PROCESS_INFO=$OPTARG
-        ;;
-      "?")
-        echo "Unknown option $OPTARG"
-        usage
-        exit 1
-        ;;
-      ":")
-        echo "No argument value for option $OPTARG"
-        ;;
-      *)
-      # Should not occur
-        echo "Unknown error while processing options"
-        ;;
-    esac
-  done
+	if [ -n "$SLURM_ARRAY_JOB_ID" ];then
+		OPENMD_ID="${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID}"
+		OPENMD_EXEC=${OPENMD_EXEC-openmd_MPI}
+	elif [ -n "$SLURM_JOBID" ];then
+		OPENMD_ID=$SLURM_JOBID
+		OPENMD_EXEC=${OPENMD_EXEC-openmd_MPI}
+	else
+		OPENMD_ID=$$
+		OPENMD_EXEC=${OPENMD_EXEC-openmd}
+	fi
+}
+
+while getopts ":rc:o:" optname;do
+	case "$optname" in
+    	"?")
+    		echo "Unknown option $OPTARG"
+    		usage
+    		exit 1
+    	;;
+    	":")
+    		echo "No argument value for option $OPTARG"
+    	;;
+    	*)
+    		# Should not occur
+    		echo "Unknown error while processing options"
+    	;;
+	esac
+done
 
 shift $((OPTIND-1))
 
@@ -61,51 +71,63 @@ if [ ! $# -eq 1 ];then
 	exit 2
 fi
 
-INPUT="$(basename $1)"
+CMD_PREFIX="time"
+OPENMD_EXEC_PREFIX=${OPENMD_EXEC_PREFIX-}
 
+getID
 
-if [ -f $OUTPUTDIR/lastdir ]; then
-	ID=$(cat $OUTPUTDIR/lastdir)
-	let ID=ID+1
-	echo $ID > $(dirname $OUTPUTDIR)/lastdir
+FORCE_PARAM_PATH=${FORCE_PARAM_PATH-$OPENMD_INPUT_FILE}
+
+OPENMD_INPUT_FILE="$(basename $1)"
+OPENMD_DUMP_FILE=${OPENMD_INPUT_FILE//.md/.dump}
+OPENMD_XYZ_FILE=${OPENMD_INPUT_FILE//.md/.xyz}
+OPENMD_BLEND_FILE=${OPENMD_INPUT_FILE//.md/.blend}
+
+OPENMD_INIT_DIR=$(pwd)
+OPENMD_SANDBOX_DIR=${OPENMD_SANDBOX_DIR-/tmp/openmd-utils}
+OPENMD_SANDBOX_DIR="$OPENMD_SANDBOX_DIR/$OPENMD_ID"
+
+OPENMD_BLENDER_DIR=${OPENMD_BLENDER_DIR-~/git/github/mvala/openmd-utils/src/blender}
+OPENMD_OUTPUT_PREFIX=${OPENMD_OUTPUT_PREFIX-out}
+OPENMD_OUTPUT_DIR=$OPENMD_INIT_DIR/$OPENMD_OUTPUT_PREFIX/$(basename $OPENMD_SANDBOX_DIR)
+
+[ -d $OPENMD_SANDBOX_DIR ] && rm -rf $OPENMD_SANDBOX_DIR
+mkdir -p $OPENMD_SANDBOX_DIR || exit 10
+cd $OPENMD_SANDBOX_DIR
+cp $OPENMD_INIT_DIR/*Def.md .
+cp $OPENMD_INIT_DIR/*.frc .
+cp $OPENMD_INIT_DIR/$OPENMD_INPUT_FILE .
+date
+# Run OpenMD
+if hash $OPENMD_EXEC 2>/dev/null; then
+	$CMD_PREFIX $OPENMD_EXEC_PREFIX $OPENMD_EXEC $OPENMD_INPUT_FILE
 else
-	ID=0
-	echo $ID > $(dirname $OUTPUTDIR)/lastdir
-	
+	echo "Error: $OPENMD_EXEC not found"
+    exit 3
 fi
-
-OUTPUTDIR=$(printf "%s/%03d" $(readlink -m $OUTPUTDIR) $ID)
-
-if [ -d $OUTPUTDIR ];then
-	echo "Output directory '$OUTPUTDIR' already exists"
-	exit 3
+date
+# Convert to XYZ
+if hash Dump2XYZ 2>/dev/null; then
+	$CMD_PREFIX Dump2XYZ -i $OPENMD_DUMP_FILE
 else
-	mkdir -p $OUTPUTDIR
+	echo "Error: Dump2XYZ not found"
+    exit 3
 fi
-
-cp -rf $(dirname $1)/* $OUTPUTDIR
-ln -sfn $OUTPUTDIR $(dirname $OUTPUTDIR)/last
-cd $OUTPUTDIR
-
-printf "$PROCESS_INFO" >> README
-
-CURRENT_DIR="$(dirname $(dirname $(readlink -m $0)))"
-
-clean $(basename $1)
-
-echo "Running simulation $INPUT in $(readlink -m $OUTPUTDIR) ..."
-openmd $INPUT
-[ -f ${INPUT//.md/.dump} ] || exit 2
- 
-echo "Converting Dump to XYZ ..."
-Dump2XYZ -i ${INPUT//.md/.dump}
-[ -f ${INPUT//.md/.xyz} ] || exit 2
 
 if hash blender 2>/dev/null; then
-	echo "Creating Blender file from '${INPUT//.md/.xyz}' ..."
-	export PYTHONPATH="$CURRENT_DIR/src/blender:$PYTHONPATH"
-	rm -f ${INPUT//.md/.blend}
-	blender --background --python $CURRENT_DIR/src/blender/openmd/create-video.py -- $BLENDER_PYTHON_OPT ${INPUT//.md/.xyz}
-	[ $? -eq 0 ] || exit 4
+	if [ -d $OPENMD_BLENDER_DIR ];then
+		echo "Creating Blender file '$OPENMD_BLEND_FILE' from '$OPENMD_XYZ_FILE' ..."
+		export PYTHONPATH="$OPENMD_BLENDER_DIR:$PYTHONPATH"
+		rm -f $OPENMD_BLEND_FILE
+		$CMD_PREFIX blender --background --python $OPENMD_BLENDER_DIR/openmd/create-video.py -- $BLENDER_PYTHON_OPT $OPENMD_XYZ_FILE
+		[ $? -eq 0 ] || exit 5
+	else
+		echo "OPEN_BLENDER_DIR doesn't exist !!!"
+		exit 4
+	fi
+else
+	echo "Blender was now found on the system. Skipping ..."
 fi
-cd $MYPWD
+
+finish
+

@@ -103,8 +103,9 @@ namespace OpenMD {
   void RootVisitor::internalVisit(StuntDouble *sd) {
     char                              buffer[1024];
 
-    Vector3<RealType> p = sd->getPos();
-    Vector3<RealType> v = sd->getVel();
+    Vector3<RealType> p,v;
+    p = sd->getPos();
+    v = sd->getVel();
     Quaternion<RealType> q = sd->getQ();
     q.normalize();
     omdFrame->AddObject(sd->getGlobalIndex(), p.x(), p.y(), p.z(), v.x(), v.y(), v.z(), q.w(), q.x(), q.y(), q.z());
