@@ -4,7 +4,7 @@ trap finish SIGINT SIGTERM
 
 function usage() {
 cat << EOF
-usage ./$(basename $0) [options] <file.md>
+usage ./$(basename $0) [options] <file.omd>
 
 options:
 	
@@ -79,9 +79,9 @@ getID
 FORCE_PARAM_PATH=${FORCE_PARAM_PATH-$OPENMD_INPUT_FILE}
 
 OPENMD_INPUT_FILE="$(basename $1)"
-OPENMD_DUMP_FILE=${OPENMD_INPUT_FILE//.md/.dump}
-OPENMD_XYZ_FILE=${OPENMD_INPUT_FILE//.md/.xyz}
-OPENMD_BLEND_FILE=${OPENMD_INPUT_FILE//.md/.blend}
+OPENMD_DUMP_FILE=${OPENMD_INPUT_FILE//.omd/.dump}
+OPENMD_XYZ_FILE=${OPENMD_INPUT_FILE//.omd/.xyz}
+OPENMD_BLEND_FILE=${OPENMD_INPUT_FILE//.omd/.blend}
 
 OPENMD_INIT_DIR=$(pwd)
 OPENMD_SANDBOX_DIR=${OPENMD_SANDBOX_DIR-/tmp/openmd-utils}
@@ -94,7 +94,7 @@ OPENMD_OUTPUT_DIR=$OPENMD_INIT_DIR/$OPENMD_OUTPUT_PREFIX/$(basename $OPENMD_SAND
 [ -d $OPENMD_SANDBOX_DIR ] && rm -rf $OPENMD_SANDBOX_DIR
 mkdir -p $OPENMD_SANDBOX_DIR || exit 10
 cd $OPENMD_SANDBOX_DIR
-cp $OPENMD_INIT_DIR/*Def.md .
+cp $OPENMD_INIT_DIR/*Def.omd .
 cp $OPENMD_INIT_DIR/*.frc .
 cp $OPENMD_INIT_DIR/$OPENMD_INPUT_FILE .
 date
