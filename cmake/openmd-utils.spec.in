@@ -1,14 +1,14 @@
 Name:		openmd-utils
 Version:	@CPACK_PACKAGE_VERSION_MAJOR@.@CPACK_PACKAGE_VERSION_MINOR@.@CPACK_PACKAGE_VERSION_PATCH@
-Release:	0%{?dist}
+Release:	@CPACK_PACKAGE_VERSION_RELEASE@%{?dist}
 Summary:	OpenMD utils
 Group:		System Environment/Libraries
 License:	LGPL v3+
 Source0:    %{name}-%{version}.tar.gz
 
-BuildRequires:  cmake, openmd-devel, qhull-devel
-BuildRequires:  root, root-geom
-Requires:       root
+BuildRequires:  cmake, openmd-devel
+BuildRequires:  root, root-geom, root-physics
+Requires:       root, openmd, blender
 
 %description
 OpenMD utils
@@ -33,5 +33,6 @@ cd ../
 %{_bindir}/*
 %{_libdir}/*
 %{_datadir}/openmd-utils/*
+%{_sysconfdir}/profile.d/omd.sh
 
 %changelog

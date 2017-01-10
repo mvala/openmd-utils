@@ -73,6 +73,7 @@ fi
 
 CMD_PREFIX="time"
 OPENMD_EXEC_PREFIX=${OPENMD_EXEC_PREFIX-}
+export OPENMD_UTILS_MACRO_DIR=${OPENMD_UTILS_MACRO_DIR-"/usr/share/openmd-utils/macros"}
 
 getID
 
@@ -80,6 +81,7 @@ FORCE_PARAM_PATH=${FORCE_PARAM_PATH-$OPENMD_INPUT_FILE}
 
 OPENMD_INPUT_FILE="$(basename $1)"
 OPENMD_DUMP_FILE=${OPENMD_INPUT_FILE//.omd/.dump}
+OPENMD_STAT_FILE=${OPENMD_INPUT_FILE//.omd/.stat}
 OPENMD_XYZ_FILE=${OPENMD_INPUT_FILE//.omd/.xyz}
 OPENMD_BLEND_FILE=${OPENMD_INPUT_FILE//.omd/.blend}
 
@@ -87,7 +89,7 @@ OPENMD_INIT_DIR=$(pwd)
 OPENMD_SANDBOX_DIR=${OPENMD_SANDBOX_DIR-/tmp/openmd-utils}
 OPENMD_SANDBOX_DIR="$OPENMD_SANDBOX_DIR/$OPENMD_ID"
 
-OPENMD_BLENDER_DIR=${OPENMD_BLENDER_DIR-~/git/github/mvala/openmd-utils/src/blender}
+OPENMD_BLENDER_DIR=${OPENMD_BLENDER_DIR-/usr/share/openmd-utils/blender}
 OPENMD_OUTPUT_PREFIX=${OPENMD_OUTPUT_PREFIX-out}
 OPENMD_OUTPUT_DIR=$OPENMD_INIT_DIR/$OPENMD_OUTPUT_PREFIX/$(basename $OPENMD_SANDBOX_DIR)
 
@@ -105,7 +107,19 @@ else
 	echo "Error: $OPENMD_EXEC not found"
     exit 3
 fi
+
 date
+
+# Create stat histograms
+if hash root 2>/dev/null; then
+	$CMD_PREFIX root -b -q $OPENMD_UTILS_MACRO_DIR/'OpenMDStat.C("'$OPENMD_STAT_FILE'")'
+else
+	echo "Error: ROOT not found"
+    exit 3
+fi
+
+date
+
 # Convert to XYZ
 if hash Dump2XYZ 2>/dev/null; then
 	$CMD_PREFIX Dump2XYZ -i $OPENMD_DUMP_FILE
